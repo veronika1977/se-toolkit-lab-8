@@ -1,14 +1,10 @@
 :80 {
-    @api {
-        path /docs* /openapi.json* /health* /pipeline* /items* /submissions*
+    handle /ws/chat {
+        reverse_proxy ws-server:8765
     }
-    
-    handle @api {
-        reverse_proxy backend:8000
+    handle /flutter* {
+        root * /srv/flutter
+        file_server browse
     }
-    
-    handle {
-        root * /usr/share/caddy
-        file_server
-    }
+    respond "OK"
 }

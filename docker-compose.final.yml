@@ -1,0 +1,23 @@
+services:
+  ws-server:
+    image: python:3.12-slim
+    command: sh -c "pip install websockets && python /app/ws_server.py"
+    volumes:
+      - ./nanobot:/app/nanobot
+      - ./ws_server.py:/app/ws_server.py
+    networks:
+      - mynet
+
+  caddy:
+    image: caddy:2.11-alpine
+    ports:
+      - "42002:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./client-web-flutter/web:/srv/flutter:ro
+    networks:
+      - mynet
+
+networks:
+  mynet:
+    driver: bridge

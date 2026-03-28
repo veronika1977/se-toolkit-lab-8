@@ -1,26 +1,9 @@
 :80 {
-    handle /health {
-        respond "ok" 200
-    }
-
-    handle /pipeline/sync {
-        reverse_proxy backend:8000
-    }
-
-    @api {
-        path /docs* /openapi.json* /items* /learners* /analytics* /interactions* /pipeline*
-    }
-
-    handle @api {
-        reverse_proxy backend:8000
-    }
-
     handle /ws/chat {
         reverse_proxy nanobot:8765
     }
-
-    handle {
-        root * /srv/react
+    handle_path /flutter* {
+        root * /srv/flutter
         file_server
     }
 }
