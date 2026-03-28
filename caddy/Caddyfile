@@ -2,5 +2,4 @@
     handle /ws/chat {
         reverse_proxy nanobot:8765
     }
-    respond "OK"
 }

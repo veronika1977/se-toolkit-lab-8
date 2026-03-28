@@ -11,17 +11,13 @@ class Handler(BaseHTTPRequestHandler):
                 s.connect(('postgres', 5432))
                 s.close()
                 self.send_response(200)
-                self.send_header('Content-Type', 'application/json')
                 self.end_headers()
-                self.wfile.write(json.dumps([{"id": 1, "title": "Lab 8"}]).encode())
-            except Exception as e:
-                print(f"DB error: {e}")
+                self.wfile.write(b'[{"id":1}]')
+            except:
                 self.send_response(500)
-                self.send_header('Content-Type', 'application/json')
                 self.end_headers()
-                self.wfile.write(json.dumps({"error": "Database connection failed"}).encode())
+                self.wfile.write(b'{"error":"DB failed"}')
         else:
             self.send_response(404)
 
-print("Backend starting...")
 HTTPServer(('0.0.0.0', 8000), Handler).serve_forever()
