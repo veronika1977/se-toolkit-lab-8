@@ -1,25 +1,35 @@
-# Task 3 — Observability
+# Task 4 — Diagnose a Failure and Make the Agent Proactive
 
-## Task 3A — Structured logging
-Happy path logs:
+## Task 4A — Multi-step investigation
 
-## Task 3B — Traces
-Healthy trace screenshot:
-![Trace](trace_healthy.png)
+### With PostgreSQL stopped, asking "What went wrong?":
 
-Error trace screenshot:
-![Trace](trace_error.png)
+**User**: What went wrong?
 
-## Task 3C — Observability MCP tools
+**Agent**: 
 
-### MCP tools added:
-- logs_search - search logs by keyword
-- logs_error_count - count errors per service  
-- traces_list - list recent traces
-- traces_get - get full trace by ID
+## Task 4B — Proactive health check
 
-### Agent responses:
+### Cron job created:
 
-**Normal conditions:**
+### Proactive health report (while PostgreSQL stopped):
 
-**After stopping PostgreSQL:**
+## Task 4C — Bug fix and recovery
+
+### Root cause:
+The planted bug was in `backend/app/routers/items.py` - an exception handler that swallowed database errors and returned empty results instead of propagating the error.
+
+### Fix:
+```diff
+- except Exception:
+-     return []
++ except Exception as e:
++     logger.error(f"Database error: {e}")
++     raise HTTPException(status_code=500, detail=str(e))
+Investigation found:
+- Database connection refused (real error)
+- No exception swallowing
+- Proper error propagation
+✅ System looks healthy
+No errors in the last 2 minutes
+All services responding
