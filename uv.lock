@@ -6,8 +6,7 @@ requires-python = "==3.14.2"
 members = [
     "lms-backend",
     "lms-mcp",
-    "nanobot",
-    "nanobot-channel-protocol",
+    "nanobot-lms",
     "qwen-code-api",
 ]
 
@@ -1001,25 +1000,6 @@ wheels = [
 ]
 
 [[package]]
-name = "nanobot"
-version = "0.1.0"
-source = { virtual = "nanobot" }
-dependencies = [
-    { name = "lms-mcp" },
-    { name = "mcp" },
-    { name = "nanobot-ai" },
-    { name = "nanobot-channel-protocol" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "lms-mcp", editable = "mcp" },
-    { name = "mcp", specifier = ">=1.26.0" },
-    { name = "nanobot-ai", specifier = ">=0.1.4.post6" },
-    { name = "nanobot-channel-protocol", editable = "nanobot/nanobot-channel-protocol" },
-]
-
-[[package]]
 name = "nanobot-ai"
 version = "0.1.4.post6"
 source = { registry = "https://pypi.org/simple" }
@@ -1061,15 +1041,19 @@ wheels = [
 ]
 
 [[package]]
-name = "nanobot-channel-protocol"
+name = "nanobot-lms"
 version = "0.1.0"
-source = { editable = "nanobot/nanobot-channel-protocol" }
+source = { virtual = "nanobot" }
 dependencies = [
-    { name = "pydantic" },
+    { name = "mcp" },
+    { name = "nanobot-ai" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "pydantic", specifier = ">=2.12.0,<3.0.0" }]
+requires-dist = [
+    { name = "mcp" },
+    { name = "nanobot-ai" },
+]
 
 [[package]]
 name = "nodeenv"

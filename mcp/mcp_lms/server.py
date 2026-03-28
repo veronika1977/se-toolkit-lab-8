@@ -225,3 +225,70 @@ async def main(base_url: str | None = None) -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
+
+# ========== Observability Tools for Task 3 ==========
+
+@server.call_tool()
+async def logs_search(keyword: str, time_range: str = "1h") -> list[TextContent]:
+    """Search logs by keyword in VictoriaLogs."""
+    try:
+        import aiohttp
+        url = "http://victorialogs:9428/select/logsql/query"
+        query = f'_stream:{{service="backend"}} AND *{keyword}*'
+        params = {"query": query, "limit": 20}
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, params=params) as resp:
+                data = await resp.text()
+                if data:
+                    lines = data.strip().split('\n')[:10]
+                    return [TextContent(type="text", text=f"Found {len(lines)} logs for '{keyword}':\n" + "\n".join(lines[:5]))]
+                return [TextContent(type="text", text=f"No logs found for '{keyword}'")]
+    except Exception as e:
+        return [TextContent(type="text", text=f"Error querying logs: {e}")]
+
+@server.call_tool()
+async def logs_error_count(service: str, time_range: str = "1h") -> list[TextContent]:
+    """Count errors per service."""
+    try:
+        import aiohttp
+        url = "http://victorialogs:9428/select/logsql/query"
+        query = f'_stream:{{service="{service}"}} AND level:error'
+        params = {"query": query, "limit": 1000}
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, params=params) as resp:
+                data = await resp.text()
+                count = len(data.strip().split('\n')) if data else 0
+                return [TextContent(type="text", text=f"Error count for {service}: {count}")]
+    except Exception as e:
+        return [TextContent(type="text", text=f"Error: {e}")]
+
+@server.call_tool()
+async def traces_list(service: str, limit: int = 10) -> list[TextContent]:
+    """List recent traces for a service."""
+    try:
+        import aiohttp
+        url = f"http://victoriatraces:10428/jaeger/api/traces?service={service}&limit={limit}"
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as resp:
+                data = await resp.json()
+                traces = data.get('data', [])
+                if traces:
+                    trace_ids = [t.get('traceID', '')[:16] for t in traces[:5]]
+                    return [TextContent(type="text", text=f"Recent traces for {service}: {', '.join(trace_ids)}")]
+                return [TextContent(type="text", text=f"No traces found for {service}")]
+    except Exception as e:
+        return [TextContent(type="text", text=f"Error: {e}")]
+
+@server.call_tool()
+async def traces_get(trace_id: str) -> list[TextContent]:
+    """Get full trace by ID."""
+    try:
+        import aiohttp
+        url = f"http://victoriatraces:10428/jaeger/api/traces/{trace_id}"
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as resp:
+                data = await resp.json()
+                spans = data.get('data', [{}])[0].get('spans', [])
+                return [TextContent(type="text", text=f"Trace {trace_id}: {len(spans)} spans")]
+    except Exception as e:
+        return [TextContent(type="text", text=f"Error: {e}")]

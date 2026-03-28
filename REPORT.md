@@ -1,26 +1,25 @@
-# Task 1 — Set Up the Agent
+# Task 3 — Observability
 
-## Task 1A — Bare agent
+## Task 3A — Structured logging
+Happy path logs:
 
-**Q: What is the agentic loop?**
-The agentic loop is the process where an AI agent receives a query, determines which tools to call, executes them, and feeds results back to the LLM for final response.
+## Task 3B — Traces
+Healthy trace screenshot:
+![Trace](trace_healthy.png)
 
-**Q: What labs are available in our LMS?**
-I don't have access to the LMS system yet. MCP tools need to be configured.
+Error trace screenshot:
+![Trace](trace_error.png)
 
-## Task 1B — Agent with LMS tools
+## Task 3C — Observability MCP tools
 
-**Q: What labs are available?**
-[{"id": 1, "type": "lab", "parent_id": null, "title": "Lab 8", "description": "Software Engineering Toolkit Lab 8"}]
+### MCP tools added:
+- logs_search - search logs by keyword
+- logs_error_count - count errors per service  
+- traces_list - list recent traces
+- traces_get - get full trace by ID
 
-**Q: Describe the architecture of the LMS system**
-The LMS system consists of:
-- Backend API (FastAPI) on port 42001
-- PostgreSQL database on port 42004
-- Caddy reverse proxy on port 42002
-- MCP server for tool integration exposing tools: lms_health, lms_labs, lms_pass_rates, lms_timeline, lms_groups, lms_top_learners, lms_completion_rate, lms_sync_pipeline
+### Agent responses:
 
-## Task 1C — Skill prompt
+**Normal conditions:**
 
-**Q: Show me the scores**
-Please specify which lab you want to see scores for. Available labs: Lab 8
+**After stopping PostgreSQL:**
