@@ -2,9 +2,5 @@
     handle /ws/chat {
         reverse_proxy nanobot:8765
     }
-    handle /flutter* {
-        root * /srv/flutter
-        file_server
-    }
-    respond "OK" 200
+    respond "OK"
 }

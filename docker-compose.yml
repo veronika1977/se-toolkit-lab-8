@@ -1,57 +1,32 @@
 services:
-  backend:
-    build:
-      context: ./backend
-    restart: unless-stopped
+  postgres:
+    image: postgres:18.3-alpine
+    environment:
+      - POSTGRES_DB=test
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     networks:
       - lms-network
+
+  backend:
+    image: python:3.12-slim
+    command: python /app/backend.py
+    volumes:
+      - ./backend.py:/app/backend.py
     ports:
       - "42001:8000"
-    environment:
-      - NAME=Learning Management Service
-      - DEBUG=false
-      - ADDRESS=0.0.0.0
-      - PORT=8000
-      - RELOAD=false
-      - CORS_ORIGINS=["*"]
-      - LMS_API_KEY=my2026
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_NAME=db-lab-8
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - BACKEND_ENABLE_INTERACTIONS=true
-      - BACKEND_ENABLE_LEARNERS=true
-      - AUTOCHECKER_API_URL=https://auche.namaz.live
-      - AUTOCHECKER_API_LOGIN=v.drozd@innopolis.university
-      - AUTOCHECKER_API_PASSWORD=veronika1977veronikaaadrozd
+    networks:
+      - lms-network
     depends_on:
       - postgres
 
-  postgres:
-    image: postgres:18.3-alpine
-    restart: unless-stopped
-    networks:
-      - lms-network
-    environment:
-      - POSTGRES_DB=db-lab-8
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-
   nanobot:
     image: python:3.12-slim
-    command: sh -c "pip install websockets -q && python /app/ws_server.py"
+    command: sh -c "pip install websockets -q && python /app/ws.py"
     volumes:
-      - ./ws_server.py:/app/ws_server.py
-    networks:
-      - lms-network
+      - ./ws_server.py:/app/ws.py
     ports:
       - "8765:8765"
-
-  client-web-flutter:
-    image: nginx:alpine
-    volumes:
-      - ./client-web-flutter/web:/usr/share/nginx/html
     networks:
       - lms-network
 
@@ -61,12 +36,10 @@ services:
       - "42002:80"
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./client-web-flutter/web:/srv/flutter:ro
-    depends_on:
-      - nanobot
-      - client-web-flutter
     networks:
       - lms-network
+    depends_on:
+      - nanobot
 
 networks:
   lms-network:
