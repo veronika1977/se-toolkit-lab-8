@@ -1,0 +1,4 @@
+Using config: /root/se-toolkit-lab-8/nanobot/config.json
+
+🐈 nanobot
+[{"id": 1, "type": "lab", "parent_id": null, "title": "Lab 8", "description": "Software Engineering Toolkit Lab 8"}]

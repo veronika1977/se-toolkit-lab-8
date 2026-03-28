@@ -8,9 +8,7 @@ dependencies = [
     "lms-mcp",
     "mcp>=1.26.0",
     "nanobot-ai>=0.1.4.post6",
-    "nanobot-channel-protocol",
 ]
 
 [tool.uv.sources]
 lms-mcp = { workspace = true, editable = true }
-nanobot-channel-protocol = { workspace = true }
