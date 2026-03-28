@@ -40,3 +40,7 @@ app.include_router(
     tags=["analytics"],
     dependencies=[Depends(verify_api_key)],
 )
+
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "database": "connected"}
