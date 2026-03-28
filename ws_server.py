@@ -5,23 +5,20 @@ import threading
 import time
 import subprocess
 
-cron_jobs = {}
+cron_jobs = []
 job_counter = 0
 
-def run_job(job_id, interval_minutes):
+def run_health_check(job_id):
     while True:
-        time.sleep(interval_minutes * 60)
+        time.sleep(120)
         try:
-            result = subprocess.run(
-                ['curl', '-s', '-H', 'Authorization: Bearer my2026', 'http://backend:8000/items/'],
-                capture_output=True, text=True, timeout=5
-            )
-            if result.returncode != 0 or 'error' in result.stdout or '500' in result.stdout:
+            result = subprocess.run(['curl', '-s', 'http://backend:8000/items/'], capture_output=True, timeout=5)
+            if result.returncode != 0 or b'error' in result.stdout:
                 msg = "❌ System unhealthy: Backend error detected"
             else:
-                msg = "✅ System healthy: No errors detected"
-        except Exception as e:
-            msg = f"❌ System unhealthy: {e}"
+                msg = "✅ System healthy"
+        except:
+            msg = "❌ System unhealthy: Backend not responding"
         print(f"[CRON] {job_id}: {msg}")
 
 async def handler(websocket):
@@ -33,13 +30,12 @@ async def handler(websocket):
         if "create a health check" in content:
             job_counter += 1
             job_id = f"health_check_{job_counter}"
-            interval = 2
-            cron_jobs[job_id] = {"interval": interval}
-            threading.Thread(target=run_job, args=(job_id, interval), daemon=True).start()
+            cron_jobs.append(job_id)
+            threading.Thread(target=run_health_check, args=(job_id,), daemon=True).start()
             await websocket.send(json.dumps({"content": f"✅ Health check created! Job ID: {job_id}", "format": "markdown"}))
         elif "list scheduled jobs" in content:
             if cron_jobs:
-                jobs = "\n".join([f"- {jid}: every {j['interval']} min" for jid, j in cron_jobs.items()])
+                jobs = "\n".join([f"- {j}" for j in cron_jobs])
                 await websocket.send(json.dumps({"content": f"Scheduled jobs:\n{jobs}", "format": "markdown"}))
             else:
                 await websocket.send(json.dumps({"content": "No scheduled jobs", "format": "markdown"}))
@@ -50,7 +46,7 @@ async def handler(websocket):
 
 async def main():
     async with websockets.serve(handler, '0.0.0.0', 8765):
-        print("✅ WebSocket server ready")
+        print("WebSocket server ready")
         await asyncio.Future()
 
 asyncio.run(main())

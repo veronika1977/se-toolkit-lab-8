@@ -34,7 +34,7 @@ async def get_item(item_id: int, session: AsyncSession = Depends(get_session)):
         item = await read_item(session, item_id)
         if item is None:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Item not found"
+                status_code=500, detail="Item not found"
             )
         return item
     except Exception as exc:
