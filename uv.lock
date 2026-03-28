@@ -7,6 +7,7 @@ members = [
     "lms-backend",
     "lms-mcp",
     "nanobot",
+    "nanobot-channel-protocol",
     "qwen-code-api",
 ]
 
@@ -1005,13 +1006,17 @@ version = "0.1.0"
 source = { virtual = "nanobot" }
 dependencies = [
     { name = "lms-mcp" },
+    { name = "mcp" },
     { name = "nanobot-ai" },
+    { name = "nanobot-channel-protocol" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "lms-mcp", editable = "mcp" },
+    { name = "mcp", specifier = ">=1.26.0" },
     { name = "nanobot-ai", specifier = ">=0.1.4.post6" },
+    { name = "nanobot-channel-protocol", editable = "nanobot/nanobot-channel-protocol" },
 ]
 
 [[package]]
@@ -1054,6 +1059,17 @@ sdist = { url = "https://files.pythonhosted.org/packages/3d/53/d45cd452d826f6a6b
 wheels = [
     { url = "https://files.pythonhosted.org/packages/db/89/9eebe58d39e9f5379051c980c92749e0a26bf0caa4a7a1e4fd4008ae75f3/nanobot_ai-0.1.4.post6-py3-none-any.whl", hash = "sha256:86ffd3819f0e1994185b55676ef55c41b06f1a0788ebfe2e292937dcfdb870f2", size = 268205, upload-time = "2026-03-27T15:09:00.783Z" },
 ]
+
+[[package]]
+name = "nanobot-channel-protocol"
+version = "0.1.0"
+source = { editable = "nanobot/nanobot-channel-protocol" }
+dependencies = [
+    { name = "pydantic" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "pydantic", specifier = ">=2.12.0,<3.0.0" }]
 
 [[package]]
 name = "nodeenv"

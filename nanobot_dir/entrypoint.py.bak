@@ -1,0 +1,61 @@
+#!/usr/bin/env python3
+import json
+import os
+import sys
+import shutil
+
+def main():
+    config_path = "/app/nanobot/config.json"
+    resolved_config_path = "/app/nanobot/config.resolved.json"
+    workspace = "/app/nanobot/workspace"
+    
+    # Читаем исходную конфигурацию
+    with open(config_path, 'r') as f:
+        config = json.load(f)
+    
+    # Обновляем LLM провайдер из переменных окружения
+    if "providers" in config and "custom" in config["providers"]:
+        if "QWEN_CODE_API_BASE_URL" in os.environ:
+            config["providers"]["custom"]["apiBase"] = os.environ["QWEN_CODE_API_BASE_URL"]
+        if "QWEN_CODE_API_KEY" in os.environ and os.environ["QWEN_CODE_API_KEY"]:
+            config["providers"]["custom"]["apiKey"] = os.environ["QWEN_CODE_API_KEY"]
+    
+    # Обновляем gateway порт
+    if "gateway" in config:
+        if "NANOBOT_GATEWAY_PORT" in os.environ:
+            config["gateway"]["port"] = int(os.environ["NANOBOT_GATEWAY_PORT"])
+    
+    # Обновляем webchat порт в channels
+    if "channels" not in config:
+        config["channels"] = {}
+    if "webchat" not in config["channels"]:
+        config["channels"]["webchat"] = {}
+    config["channels"]["webchat"]["enabled"] = True
+    config["channels"]["webchat"]["allow_from"] = ["*"]
+    if "NANOBOT_WEBCHAT_PORT" in os.environ:
+        config["channels"]["webchat"]["port"] = int(os.environ["NANOBOT_WEBCHAT_PORT"])
+    
+    # Обновляем MCP серверы
+    if "tools" in config and "mcpServers" in config["tools"]:
+        if "lms" in config["tools"]["mcpServers"]:
+            env_vars = {}
+            if "LMS_BACKEND_URL" in os.environ:
+                env_vars["LMS_BACKEND_URL"] = os.environ["LMS_BACKEND_URL"]
+            if "LMS_API_KEY" in os.environ:
+                env_vars["LMS_API_KEY"] = os.environ["LMS_API_KEY"]
+            if env_vars:
+                config["tools"]["mcpServers"]["lms"]["env"] = env_vars
+    
+    # Сохраняем resolved конфиг
+    with open(resolved_config_path, 'w') as f:
+        json.dump(config, f, indent=2)
+    
+    # Копируем workspace если нужно
+    if not os.path.exists(workspace):
+        shutil.copytree("/app/workspace", workspace)
+    
+    # Запускаем nanobot gateway
+    os.execvp("nanobot", ["nanobot", "gateway", "--config", resolved_config_path, "--workspace", workspace])
+
+if __name__ == "__main__":
+    main()
