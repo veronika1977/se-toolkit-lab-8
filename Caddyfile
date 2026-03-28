@@ -1,0 +1,14 @@
+:80 {
+    @api {
+        path /docs* /openapi.json* /health* /pipeline* /items* /submissions*
+    }
+    
+    handle @api {
+        reverse_proxy backend:8000
+    }
+    
+    handle {
+        root * /usr/share/caddy
+        file_server
+    }
+}

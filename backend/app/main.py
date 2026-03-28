@@ -120,5 +120,3 @@ app.include_router(
     analytics.router,
     prefix="/analytics",
     tags=["analytics"],
-    dependencies=[Depends(verify_api_key)],
-)
