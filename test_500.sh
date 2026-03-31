@@ -4,8 +4,6 @@ cd /root/se-toolkit-lab-8
 # Stop PostgreSQL forcefully
 docker compose --env-file .env.docker.secret stop postgres -t 1 > /dev/null 2>&1
 sleep 3
-
-# Force kill if still running
 docker compose --env-file .env.docker.secret kill postgres > /dev/null 2>&1
 sleep 5
 

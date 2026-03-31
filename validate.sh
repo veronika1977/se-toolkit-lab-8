@@ -1,9 +1,20 @@
 #!/bin/bash
 cd /root/se-toolkit-lab-8
 
-# Stop PostgreSQL
-docker compose --env-file .env.docker.secret stop postgres > /dev/null 2>&1
+# Stop PostgreSQL forcefully
+docker compose --env-file .env.docker.secret stop postgres -t 1 > /dev/null 2>&1
+sleep 3
+docker compose --env-file .env.docker.secret kill postgres > /dev/null 2>&1
 sleep 5
+
+# Verify postgres is stopped
+for i in 1 2 3; do
+    PG_RUNNING=$(docker inspect se-toolkit-lab-8-postgres-1 --format='{{.State.Running}}' 2>/dev/null)
+    if [ "$PG_RUNNING" = "true" ]; then
+        docker compose --env-file .env.docker.secret kill postgres > /dev/null 2>&1
+        sleep 2
+    fi
+done
 
 # Check HTTP code
 CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:42001/items/ 2>/dev/null)
