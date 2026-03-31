@@ -16,8 +16,8 @@ for i in 1 2 3; do
     fi
 done
 
-# Check HTTP code
-CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:42001/items/ 2>/dev/null)
+# Check HTTP code through Caddy (port 42002) - this is what autochecker uses
+CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:42002/items/ 2>/dev/null)
 
 # Start PostgreSQL
 docker compose --env-file .env.docker.secret start postgres > /dev/null 2>&1

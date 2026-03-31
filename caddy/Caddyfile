@@ -1,5 +1,38 @@
 :80 {
+    handle_path /flutter/* {
+        root * /flutter
+        file_server
+    }
+
     handle /ws/chat {
         reverse_proxy nanobot:8765
+    }
+
+    handle /chat* {
+        reverse_proxy nanobot:8765
+    }
+
+    handle /items* {
+        reverse_proxy backend:8000
+    }
+
+    handle /health {
+        reverse_proxy backend:8000
+    }
+
+    handle /interactions* {
+        reverse_proxy backend:8000
+    }
+
+    handle /learners* {
+        reverse_proxy backend:8000
+    }
+
+    handle /pipeline* {
+        reverse_proxy backend:8000
+    }
+
+    handle /analytics* {
+        reverse_proxy backend:8000
     }
 }
